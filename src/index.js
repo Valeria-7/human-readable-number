@@ -1,51 +1,73 @@
+const onesArray = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+const elevenToNineteen = ['eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+const tensArray = ['ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
 module.exports = function toReadable (number) {
-  const onesArray = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
-  const elevenToNineteen = ['eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
-  const tensArray = ['ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
   let result = '';
 
-  if (number == 0) {
+  if (number < 10) {
+    result = getStringToOnes(number);
+  } else if (number < 100) {
+    result = getStringToTens(number);
+  } else if (number < 1000) {
+    result = getStringToHundreds(number);
+  } else {
+    return 'error!';
+  }
+
+  return result;
+}
+
+function getStringToOnes (num) {
+  // check
+  if (num >= 10) { 
+    return 'error! number must be < 10';
+  }
+
+  if (num == 0) {
     return 'zero';
   }
 
-  if (number < 10) {
-    return onesArray[number - 1];
+  return onesArray[num - 1];
+}
+
+function getStringToTens (num) {
+  // check
+  if (num >= 100) { 
+    return 'error! number must be < 100';
+  } else if (num < 10) {
+    // to get 'two' from 902
+    return getStringToOnes(num);
   }
 
-  if (number < 20 && number != 10) {
-    return elevenToNineteen[(number % 10) - 1];
+  // 11 12 ... 18 19
+  if (num < 20 && num != 10) { 
+    return elevenToNineteen[(num % 10) - 1];
   }
 
-  if (number < 100) {
-    if (number % 10 == 0) {
-      return tensArray[(number / 10) - 1];
-    }
-    result = tensArray[Math.trunc(number / 10) - 1] + ' ' + onesArray[(number % 10) - 1];
-    return result;
+  // 10 20 ... 80 90
+  if (num % 10 == 0) { 
+    return tensArray[(num / 10) - 1];
   }
 
-  if (number < 1000) {
-    if (number % 100 == 0) { // 900 800 700
-      result = `${onesArray[Math.trunc(number / 100) - 1]} hundred`;
-      return result;
-    }
+  // 21 22 ... 98 99
+  return `${tensArray[Math.trunc(num / 10) - 1]} ${getStringToOnes(num % 10)}`; 
+}
 
-    if (number % 10 == 0) { // 990 980 970
-      result = `${onesArray[Math.trunc(number / 100) - 1]} hundred ${tensArray[Math.trunc((number % 100) / 10) - 1]}`;
-      return result;
-    }
-
-    if ((number % 100) < 20) { // 919 918 917
-    if ((number % 100) < 10) {
-      result = `${onesArray[Math.trunc(number / 100) - 1]} hundred ${onesArray[(number % 10) - 1]}`;  
-      return result;
-    }
-    result = `${onesArray[Math.trunc(number / 100) - 1]} hundred ${elevenToNineteen[(number % 10) - 1]}`;
-    return result;
-    }
-
-    result = `${onesArray[Math.trunc(number / 100) - 1]} hundred ${tensArray[Math.trunc((number % 100) / 10) - 1]} ${onesArray[(number % 10) - 1]}`;
-    return result;
+function getStringToHundreds (num) {
+  // check
+  if (num >= 1000) { 
+    return 'error! number must be < 1000';
+  } if (num < 100) {
+    return getStringToTens(num);
   }
-
+  
+  // 100 200 ... 800 900
+  if (num % 100 == 0) {
+    return `${getStringToOnes(Math.trunc(num / 100))} hundred`;
+  }
+  
+  // 101 102 ... 111 112 ... 998 999
+  return `${getStringToOnes(Math.trunc(num / 100))} hundred ${getStringToTens(Math.trunc(num % 100))}`;
 }
